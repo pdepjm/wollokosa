@@ -4,7 +4,7 @@ class NeuralNetwork
 	var primeraCapa = null
 	var ultimaCapa = null
 	var resultadoInput = null
-	var errorTerm = 0
+	var errorTerm = []
 	 
 	method newNeuralNetwork(estructuraCapas) // Creamos una lista de N capas y recursivamente las conectamos unas a otras.
 	{
@@ -38,16 +38,23 @@ class NeuralNetwork
 	method procesarInput(input,outputEsperado)
 	{
 			resultadoInput = primeraCapa.procesar(input)
-			errorTerm = 0
+			errorTerm = []
 			self.lengthOfDiff(outputEsperado,resultadoInput)
-			return errorTerm.sqrt()
+			return errorTerm
 		
 	}
 	
 	method lengthOfDiff(x,y)
 	{
-		errorTerm = 
+		if(x.size() != 0)
+		{
+			errorTerm.add((x.first()**2 + y.first()**2)/2)
+			self.lengthOfDiff(x.drop(1),y.drop(1))
+		}
+		
 	}
+	
+	
 }
 
 class Layer
