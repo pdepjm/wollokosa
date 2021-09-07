@@ -1,157 +1,114 @@
-class NeuralNetwork 
+object mOp
 {
-	var inputSize = 0
-	var primeraCapa = null
-	var ultimaCapa = null
-	var resultadoInput = null
-	var errorTerm = []
-	 
-	method newNeuralNetwork(estructuraCapas) // Creamos una lista de N capas y recursivamente las conectamos unas a otras.
+	var temp = []
+	var rowSize = 0
+	var columnSize = 0
+	var cdot = 0
+	
+	method product(matrixOne,matrixTwo)
 	{
-		if (estructuraCapas.size() == 0)
+		if(matrixOne.rowSize() == matrixTwo.columnSize())
 		{
-			
+			rowSize = matrixOne.rowSize()
+			columnSize = matrixTwo.columnSize()
+			temp = [[]]
+			return self.controlProduct(rowSize,columnSize,matrixOne,matrixTwo)
+		}
+		else return 0
+	}
+	
+	method rowSize()
+	{
+		return rowSize
+	}
+	
+	method columnSize()
+	{
+		return columnSize
+	}
+	
+	method temp()
+	{
+		return temp
+	}
+	
+	method controlProduct(n,m,matrix1,matrix2)
+	{
+		if (n == 0)
+		{
+		    	if (m == 1)
+		    	{
+		    		temp = temp.map({x => x.reverse()}).reverse()
+		    		if(temp.size() == 1)
+		    		{
+		    			return temp.first().first()
+		    		}
+		    		return temp
+		    	}
+		    	else
+		    	{
+		    		temp.add([])
+		    		return self.controlProduct(rowSize,columnSize - 1 ,matrix1,matrix2)
+		    	}
+		}
+		
+		
+		
+		else
+		{
+			temp.last().add(self.dotProduct(matrix1.row(m),matrix2.column(n)))
+			return self.controlProduct(n-1,m,matrix1,matrix2)
+		}
+	}
+	
+	method dotProduct(x,y)
+	{
+		cdot = 0
+		return self.iterateProduct(x,y,0,x.size())
+	}
+	
+	method iterateProduct(x,y,m,max)
+	{
+		if (m == max)
+		{
+			return cdot
 		}
 		else
 		{
-			if (primeraCapa == null)
-			{
-				const primera = new Layer()
-				inputSize = estructuraCapas.head()
-			    primera.inicializarCapa(estructuraCapas.head(),estructuraCapas.drop(1).head())
-				primeraCapa = primera
-				ultimaCapa = primera
-				self.newNeuralNetwork(estructuraCapas.drop(2))
-			}
-			else
-			{
-				const siguienteCapa = new Layer()
-				siguienteCapa.capaAnterior(ultimaCapa)
-				siguienteCapa.inicializarCapa(ultimaCapa.cantidadDeNeuronas(),estructuraCapas.head())
-				ultimaCapa.capaSiguiente(siguienteCapa)
-				ultimaCapa = siguienteCapa
-				self.newNeuralNetwork(estructuraCapas.drop(1))
-			}
+			cdot = cdot + (x.get(m) * y.get(m))
+			return self.iterateProduct(x,y,m+1,max)
 		}
 	}
-	
-	method procesarInput(input,outputEsperado)
-	{
-			resultadoInput = primeraCapa.procesar(input)
-			errorTerm = []
-			self.lengthOfDiff(outputEsperado,resultadoInput)
-			return errorTerm
-		
-	}
-	
-	method lengthOfDiff(x,y)
-	{
-		if(x.size() != 0)
-		{
-			errorTerm.add((x.first()**2 + y.first()**2)/2)
-			self.lengthOfDiff(x.drop(1),y.drop(1))
-		}
-		
-	}
-	
-	
 }
 
-class Layer
+class Matrix
 {
-var capaAnterior = null
-var capaSiguiente = null
-const listaDeNeuronas = []
-
-method capaAnterior(x)
-{
-	capaAnterior = x
-}   
-
-method capaSiguiente(x)
-{
-	capaSiguiente = x
-}
-
-method cantidadDeNeuronas()
-{
-	return listaDeNeuronas.size()
-} 
-
-method inicializarCapa(cantidadNeuronasCapaAnterior,cantidadDeNeuronasCapa)
-{
-	if (cantidadDeNeuronasCapa != 0)
-	{
- const x = new Neurona(cantidadDePesos = cantidadNeuronasCapaAnterior)
- x.inicializarNeurona()
- listaDeNeuronas.add(x)
- self.inicializarCapa(cantidadNeuronasCapaAnterior,cantidadDeNeuronasCapa - 1)	
-    }
-}
-
-method procesar(input)
-{
-	listaDeNeuronas.forEach({x => x.dotProduct(input)})
-	var p = listaDeNeuronas.map({x => x.resultado()})
-	if (capaSiguiente == null)
-	{
-		return p
-	}
-	else
-	{
-		return capaSiguiente.procesar(p)
-	}
-}
-
-
-}
-
-class Neurona
-{
-	const cantidadDePesos
-	const pesos = []
-	var resultado = 0
+	var property matrixList
 	
-	method dotProduct(inputs)
+	method get(n,m)
 	{
-		resultado = 0
-		self.dot(inputs,pesos)
-		return resultado
-		
+		return matrixList.get(n-1).get(m-1)
 	}
 	
-	method dot(inputs,peso)
+	method rowSize()
 	{
-		if(inputs.size() == 0)
-		{
-		}
-		else
-		{
-		
-		resultado = peso.first() * inputs.first() 
-		self.dot(inputs.drop(1),peso.drop(1))
-		}
+		return matrixList.first().size()
 	}
 	
-	
-	method resultado()
+	method columnSize()
 	{
-		return resultado
+		return matrixList.size()
 	}
 	
-	method inicializarNeurona()
+	method row(n)
 	{
-	  self.agregarPeso(cantidadDePesos)
+		return matrixList.get(n-1)
 	}
- 
-    method agregarPeso(x)
-    {
-    	if (x != 0)
-    	{
-    	pesos.add((-1).randomUpTo(1))
-    	self.agregarPeso(x-1)
-    	}
-    }
+	
+	method column(n)
+	{
+		return matrixList.map({row => row.get(n-1)})
+	}
 }
 
 
