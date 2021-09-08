@@ -7,7 +7,7 @@ object mOp
 	
 	method product(matrixOne,matrixTwo)
 	{
-		if(matrixOne.rowSize() == matrixTwo.columnSize())
+		if(matrixOne.columnSize() == matrixTwo.rowSize())
 		{
 			rowSize = matrixOne.rowSize()
 			columnSize = matrixTwo.columnSize()
@@ -34,21 +34,21 @@ object mOp
 	
 	method controlProduct(n,m,matrix1,matrix2)
 	{
-		if (n == 0)
+		if (m == 0)
 		{
-		    	if (m == 1)
+		    	if (n == 1)
 		    	{
 		    		temp = temp.map({x => x.reverse()}).reverse()
-		    		if(temp.size() == 1)
+		    		if(temp.size() == 1 and temp.first().size() ==1)
 		    		{
 		    			return temp.first().first()
 		    		}
-		    		return temp
+		    		return new Matrix(matrixList = temp)
 		    	}
 		    	else
 		    	{
 		    		temp.add([])
-		    		return self.controlProduct(rowSize,columnSize - 1 ,matrix1,matrix2)
+		    		return self.controlProduct(n-1,columnSize,matrix1,matrix2)
 		    	}
 		}
 		
@@ -56,8 +56,8 @@ object mOp
 		
 		else
 		{
-			temp.last().add(self.dotProduct(matrix1.row(m),matrix2.column(n)))
-			return self.controlProduct(n-1,m,matrix1,matrix2)
+			temp.last().add(self.dotProduct(matrix1.row(n),matrix2.column(m)))
+			return self.controlProduct(n,m-1,matrix1,matrix2)
 		}
 	}
 	
@@ -85,17 +85,27 @@ class Matrix
 {
 	var property matrixList
 	
+	method multiply(otherMatrix)
+	{
+		return mOp.product(otherMatrix.matrix(),self.matrix())
+	}
+	
+	method matrix()
+	{
+		return matrixList
+	}
+	
 	method get(n,m)
 	{
 		return matrixList.get(n-1).get(m-1)
 	}
 	
-	method rowSize()
+	method columnSize()
 	{
 		return matrixList.first().size()
 	}
 	
-	method columnSize()
+	method rowSize()
 	{
 		return matrixList.size()
 	}
